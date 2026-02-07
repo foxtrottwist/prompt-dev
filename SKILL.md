@@ -9,11 +9,7 @@ Iterative prompt template creation using the DISCOVER → DRAFT → TEST → REF
 
 ## Resume Check
 
-Every invocation, check for existing work:
-
-```bash
-ls .prompt-dev/ 2>/dev/null
-```
+Every invocation, check for existing state in `.prompt-dev.local/`.
 
 **If state exists**, read `state.json` and present status. Offer to resume, start fresh, or show current template.
 
@@ -21,69 +17,22 @@ ls .prompt-dev/ 2>/dev/null
 
 ## Phase 1: Discover
 
-Use **AskUserQuestion** to gather requirements:
+Infer requirements from the request context:
+- **Task type**: What the prompt handles (generation, extraction, analysis, review)
+- **Input format**: What users will provide (structured data, freeform text, files)
+- **Output format**: Expected deliverable (structured, freeform, artifact)
+- **Constraints**: Style guides, tone requirements, system integrations
 
-```yaml
-Question 1: "What task should this prompt handle?"
-options:
-  - "{inferred from request} (Recommended)"
-  - "Content generation"
-  - "Data extraction"
-  - "Analysis/review"
-  - "Other"
-
-Question 2: "What inputs will users provide?"
-multiSelect: true
-options:
-  - "Structured data (JSON, XML)"
-  - "Freeform text"
-  - "Images or files"
-  - "Parameters/settings"
-
-Question 3: "What output format?"
-options:
-  - "Structured (specific format)"
-  - "Freeform text"
-  - "Artifact/file"
-  - "Depends on input"
-
-Question 4: "Any specific constraints?"
-multiSelect: true
-options:
-  - "Must follow existing style guide"
-  - "Specific tone/voice required"
-  - "Integration with other systems"
-  - "None"
-```
+Use **AskUserQuestion** only for genuine gaps the request doesn't clarify.
 
 **Output:**
-- Create `.prompt-dev/{template-slug}/`
+- Create `.prompt-dev.local/{template-slug}/`
 - Write `brief.md` with requirements
 - Write `state.json`: `{ "phase": "draft" }`
 
 ## Phase 2: Draft
 
-Create minimal viable template following conventions in [references/conventions.md](references/conventions.md).
-
-Template structure:
-```markdown
-## Task Context
-{What Claude is being asked to do}
-
-## Input Structure
-{XML format for user inputs}
-
-## Constraints
-{Boundaries and requirements}
-
-## Success Criteria
-{Measurable outcomes}
-
-## Output Format
-{Expected deliverable format}
-```
-
-See [references/examples.md](references/examples.md) for patterns.
+Create minimal viable template following [references/conventions.md](references/conventions.md) for structure and [references/examples.md](references/examples.md) for patterns.
 
 **Output:**
 - Write `template.md` with draft
@@ -156,7 +105,7 @@ Final check against quality checklist:
 
 **If all pass:**
 - Present final template
-- Archive to `.prompt-dev/archive/{slug}/` if requested
+- Archive to `.prompt-dev.local/archive/{slug}/` if requested
 - Update `state.json`: `{ "phase": "complete" }`
 
 **If issues found:**
@@ -165,7 +114,7 @@ Final check against quality checklist:
 ## State Files
 
 ```
-.prompt-dev/{template-slug}/
+.prompt-dev.local/{template-slug}/
 ├── state.json      # Current phase
 ├── brief.md        # Requirements from discovery
 ├── template.md     # Current template version
